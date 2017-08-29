@@ -1,0 +1,219 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP ISO_8859-1:1987
+* :LineIncrement 10
+* <Natural Source Header
+/**************************************************************************** 
+/* This Modul is used for DDM Processing 
+/* it depends of the NATURAl Version !!! 
+/**************************************************************************** 
+define data 
+parameter using anadataa 
+LOCAL USING USR-MSG   /* Data for message exchange 
+LOCAL USING USR-FLD   /* Description of the field in error 
+local using anastepa 
+LOCAL 
+1 AMOUNT (i4) const <255> /* number of returning lines with one callnat 
+1 USR1058L 
+  2 OBJECT-KEY 
+    3 LIBRARY        (A08) 
+    3 OBJECT-NAME    (A32) 
+    3 OBJECT-TYPE    (A02) 
+      /* 
+  2 INPUTS 
+    3 OPT-ACCESS     (A01) 
+    3 OPT-UNUSED-1   (L) 
+    3 OPT-UNUSED-2   (A01) 
+    3 OPT-LINE-NUM   (A01) 
+    3 OPT-UNUSED-3   (L) 
+    3 OPT-REDEF-DIR  (L) 
+    3 OPT-UNUSED-4   (A01) 
+    3 OPT-AMOUNT     (I02) 
+    3 OPT-LINESIZE   (I02) 
+      /* 
+  2 INPUT-OUTPUTS 
+    3 INT-HANDLE     (I04) 
+    3 NEXT-SEQ       (I04) 
+    3 NEXT-NUM       (I02) 
+      /* 
+  2 OUTPUTS 
+    3 RETURNED       (I02) 
+    3 SRC-NUM        (I02/1:amount) 
+    3 SRC-TEXT       (A01/1:amount,1:79) 
+    3 REDEFINE SRC-TEXT 
+      4 SRC-GROUP    (1:amount) 
+        5 SRC-LINE   (A79) 
+        5 REDEFINE SRC-LINE 
+          6 SRC-LINE-ARRAY (A1/1:79) 
+        5 REDEFINE SRC-LINE 
+          6 #TYP     (A01) 
+          6 F1       (A01) 
+          6 #LEV     (A01) 
+          6 F2       (A01) 
+          6 #DB      (A02) 
+          6 F3       (A01) 
+          6 #NAME    (A32) 
+          6 F4       (A02) 
+          6 #FORMAT  (A01) 
+          6 F5       (A01) 
+          6 #LENGTH  (A04) 
+          6 F6       (A02) 
+          6 #SPE     (A01) 
+          6 F7       (A01) 
+          6 #DES     (A01) 
+          6 F8       (A01) 
+          6 #REMARK  (A24) 
+          6 F9       (A01) 
+    3 REDEFINE SRC-TEXT           /* Header information - Mainframe 
+      4 HD-DBID          (N05) 
+      4 HD-FNR           (N05) 
+      4 HD-DEFSEQ        (A02) 
+      4 HD-VSAM-SUBTYPE  (A01) 
+      4 HD-VSAM-NAME     (A08) 
+    3 REDEFINE SRC-TEXT           /* Directory - UNIX / PC platforms 
+      4 DIR-OBJNAME      (A32)    /* Object Name 
+      4 DIR-LIBRARY      (A08)    /* Library ID 
+      4 DIR-OBJTYPE      (A02)    /* Object Type 
+      4 DIR-OBJKIND      (A01)    /* Source or Module 
+      4 DIR-DBID         (A05)    /* DBID of System File 
+      4 DIR-FNR          (A05)    /* FNR of System File 
+      4 DIR-DATN         (A08)    /* Date in Format (YYYYMMDD) 
+      4 DIR-TIMN         (A07)    /* Time in Format (HHIISST) 
+      4 DIR-USERID       (A08)    /* User ID 
+      4 DIR-PROGMODE     (A01)    /* Programming Mode 
+      4 DIR-SRCSIZE      (A10)    /* Source Area Size 
+      4 DIR-GPSIZE       (A10)    /* Size of Module 
+      4 DIR-UNIQUE-ID    (A32)    /* Unique ID 
+      4 DIR-DDM-DBID     (A05)    /* DBID the DDM is cataloged with 
+      4 DIR-DDM-FNR      (A05)    /* FNR the DDM is cataloged with 
+        /* End of directory attributes 
+    3 SRC-SEQ        (I04/1:amount) 
+    3 SRC-LONG       (A01/1:amount) 
+/* 
+1 USR1058N 
+  2 VERSION          (I01)     INIT <3> 
+  2 V0-WORK-AREA     (B125)    /* Work area; do not modify 
+  2 V0-WORK-AREA1    (B125)    /* Work area; do not modify 
+  2 V1-OPT-FORMAT    (A01)     /* Mainframe or UNIX/PC format 
+  2 V2-DBID          (N05)     /* FDIC DBID 
+  2 V2-FNR           (N05)     /* FDIC FNR 
+  2 V2-PASSWORD      (A08)     /* FDIC PASSWORD 
+  2 V2-CIPHERCODE    (N08)     /* FDIC CIPHERCODE 
+  2 V3-WORK-AREA2    (N03)     /* Work area; do not modify 
+1 REDEFINE USR1058N 
+  2 EXTENDED-PARMS 
+    3 EXTENDED-DATA  (A01/1:281) 
+      /* 
+ 
+1 #i3 (i4) 
+1 #i4 (i4) 
+1 #var (a50) 
+1 #numeric (l) 
+1 #found (l) 
+1 #varlen (i4) 
+1 #varpos (i4) 
+1 #natsrckind (i4) 
+1 #i (i4) 
+end-define 
+/* 
+OPT-LINE-NUM  := 'Y' 
+OPT-REDEF-DIR := TRUE 
+OPT-AMOUNT    := amount 
+OPT-LINESIZE  := 79 
+V1-OPT-FORMAT := 'C' 
+ 
+LIBRARY       := #library 
+OBJECT-NAME   := #dataobject 
+reset #isnumeric #varsfound 
+/* 
+OPT-ACCESS   := 'O' /* Open Source 
+CALLNAT 'USR1058N' USR1058L  USR1058N.EXTENDED-PARMS 
+  NAD-MSG   NAD-FLD 
+/* 
+reset #found 
+if nad-msg.msg-nr ne 0 
+  /* in Library not found look at steplibs 
+  callnat 'ANASTEPN' #anastep 
+  for #i = 1 to #anastep.#count 
+     LIBRARY  := #anastep.#steplib(#i) 
+     OPT-ACCESS   := 'O' /* Open Source 
+     CALLNAT 'USR1058N' USR1058L  USR1058N.EXTENDED-PARMS 
+        NAD-MSG   NAD-FLD 
+     if nad-msg.msg-nr = 0 
+        /* object found 
+        #found := true 
+        #library := LIBRARY 
+        escape bottom 
+     end-if 
+  end-for 
+  if not #found 
+     escape routine 
+  end-if 
+end-if 
+/* 
+OPT-ACCESS := 'R' /* Read Source 
+/* 
+MAIN. REPEAT 
+  /* 
+  CALLNAT 'USR1058N' USR1058L  USR1058N.EXTENDED-PARMS 
+    NAD-MSG   NAD-FLD 
+  /* 
+  IF RETURNED = 0 
+    /* end of source reached -> stop 
+    escape bottom 
+  end-if 
+  /* 
+  FOR #i3 = 1 TO RETURNED 
+    /* loop thru source lines 
+    perform delete-remarks 
+    if src-line(#i3) <> ' ' 
+       /* Lines has no Remarks 
+       examine src-line(#i3) translate into upper 
+       /* first variable 
+       #var := #var1 
+       perform search-in-line 
+       if #numeric or #found 
+          escape bottom (main.) 
+       end-if 
+       /* second variable 
+       if not #var1only 
+          #var := #var2 
+          perform search-in-line 
+          if #numeric or #found 
+             escape bottom (main.) 
+          end-if 
+       end-if 
+    end-if 
+  END-FOR 
+  /* 
+END-REPEAT 
+#anadata.#isnumeric := #numeric 
+#anadata.#varsfound := #found 
+/* 
+define subroutine delete-remarks 
+/* delete all remarks from source-line 
+/* delete whole source-line if it contains remarks only 
+if #typ(#i3) <> ' ' 
+   reset SRC-LINE(#i3) 
+   escape routine 
+end-if 
+end-subroutine 
+/* 
+define subroutine search-in-line 
+/* search variable in Line and look if numeric 
+reset #numeric #found 
+examine src-line(#i3) for #var giving position #varpos 
+if #varpos <> 0 
+   examine #var for #var giving length #varlen 
+   if src-line-array(#i3,#varpos+#varlen) <> ' ' 
+      /* only full search -> char after #var must be blank 
+      escape routine 
+   end-if 
+   #found := true 
+   if #format(#i3) = scan 'I' or = scan 'P' or = scan 'N' or 
+                   = scan 'F' or = scan 'B' or = scan 'C' or = scan 'D' or = scan 'T' 
+      #numeric := true 
+   end-if 
+end-if 
+end-subroutine 
+end 

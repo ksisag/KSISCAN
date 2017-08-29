@@ -1,0 +1,14 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP UTF-8
+* <Natural Source Header
+/** New Copycode INITSCAN. 
+/** 
+/** :author ksi 
+/* TODO Enter your code here 
+* $Id: INITSCAN.NSC 11 2016-04-26 19:28:19Z ksi $ 
+* $Rev:: 11            $:  Revision der letzten Ãœbertragung 
+* $Author:: ksi        $:  Autor der letzten Ãœbertragung 
+* $Date:: 2016-04-26 2#$:  Datum der letzten Ãœbertragung 
+write 'DAS ist ein Test'  
+/* 
